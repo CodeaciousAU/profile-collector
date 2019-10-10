@@ -1,0 +1,19 @@
+{
+  "name": "codeacious/profile-collector",
+  "description": "Captures application profiling data and saves it in MongoDB for later analysis",
+  "type": "library",
+  "require": {
+    "mongodb/mongodb": "^1.4",
+    "php": ">=7.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Codeacious\\ProfileCollector\\": "src/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
+}
