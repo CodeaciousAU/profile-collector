@@ -24,6 +24,16 @@ class Collector
     protected $aggregationUrl;
 
     /**
+     * @var array
+     */
+    protected $serverVars;
+
+    /**
+     * @var array
+     */
+    protected $envVars;
+
+    /**
      * @var bool
      */
     protected $running = false;
@@ -55,6 +65,8 @@ class Collector
             ],
             'profiler_options' => [],
             'fastcgi_finish_request' => true,
+            'collect_server_vars' => true,
+            'collect_env_vars' => true,
         ];
         $this->config = array_replace_recursive($defaults, $config);
     }
@@ -108,6 +120,48 @@ class Collector
     }
 
     /**
+     * @return array
+     */
+    public function getServerVars()
+    {
+        if ($this->serverVars !== null)
+            return $this->serverVars;
+
+        return $_SERVER;
+    }
+
+    /**
+     * @param array $serverVars
+     * @return $this
+     */
+    public function setServerVars($serverVars)
+    {
+        $this->serverVars = $serverVars;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getEnvVars(): array
+    {
+        if ($this->envVars !== null)
+            return $this->envVars;
+
+        return $_ENV;
+    }
+
+    /**
+     * @param array $envVars
+     * @return $this
+     */
+    public function setEnvVars($envVars)
+    {
+        $this->envVars = $envVars;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function isEnabled()
@@ -125,6 +179,14 @@ class Collector
             || extension_loaded('tideways')
             || extension_loaded('tideways_xhprof')
         );
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRunning()
+    {
+        return $this->running;
     }
 
     /**
@@ -247,9 +309,9 @@ class Collector
         return [
             'url' => $this->getUrl(),
             'simple_url' => $this->getAggregationUrl(),
-            'SERVER' => $_SERVER,
+            'SERVER' => $this->config['collect_server_vars'] ? $this->getServerVars() : [],
             'get' => $_GET,
-            'env' => $_ENV,
+            'env' => $this->config['collect_env_vars'] ? $this->getEnvVars() : [],
             'request_ts' => $time*1000.0,
             'request_ts_micro' => $timeFloat*1000.0,
             'request_date' => date('Y-m-d', $time),
