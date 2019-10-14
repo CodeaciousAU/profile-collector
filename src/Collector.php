@@ -127,7 +127,23 @@ class Collector
         if ($this->serverVars !== null)
             return $this->serverVars;
 
-        return $_SERVER;
+        if ($this->config['collect_server_vars'])
+            return $_SERVER;
+
+        $minFields = [
+            'REMOTE_ADDR',
+            'REQUEST_METHOD',
+            'REQUEST_TIME',
+            'REQUEST_TIME_FLOAT',
+            'SERVER_NAME',
+        ];
+        $res = [];
+        foreach ($minFields as $field)
+        {
+            if (isset($_SERVER[$field]))
+                $res[$field] = $_SERVER[$field];
+        }
+        return $res;
     }
 
     /**
@@ -148,7 +164,7 @@ class Collector
         if ($this->envVars !== null)
             return $this->envVars;
 
-        return $_ENV;
+        return $this->config['collect_env_vars'] ? $_ENV : [];
     }
 
     /**
@@ -309,9 +325,9 @@ class Collector
         return [
             'url' => $this->getUrl(),
             'simple_url' => $this->getAggregationUrl(),
-            'SERVER' => $this->config['collect_server_vars'] ? $this->getServerVars() : [],
+            'SERVER' => $this->getServerVars(),
             'get' => $_GET,
-            'env' => $this->config['collect_env_vars'] ? $this->getEnvVars() : [],
+            'env' => $this->getEnvVars(),
             'request_ts' => $time*1000.0,
             'request_ts_micro' => $timeFloat*1000.0,
             'request_date' => date('Y-m-d', $time),
